@@ -1,0 +1,68 @@
+package org.prd.securityexample.model.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "auth_roles")
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRole> user_roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GrantedPermission> permissions = new ArrayList<>();
+
+    public List<GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        permissions.forEach(
+                permission -> authorities.add(permission.getPermission())
+        );
+        authorities.add(new SimpleGrantedAuthority(name));
+        return authorities;
+    }
+
+    public ArrayList<String> getPermissionsArray(){
+        if(permissions.isEmpty()){
+            return new ArrayList<>();
+        }
+        ArrayList<String> permissions = new ArrayList<>();
+        for(GrantedPermission permission : this.permissions){
+            permissions.add(permission.getPermission().getAuthority());
+        }
+        return permissions;
+    }
+
+
+//    public void addUserRole(UserRoleEntity user_role) {
+//        user_roles.add(user_role);
+//        user_role.setRole(this);
+//    }
+//
+//    public void removeUserRole(UserRoleEntity user_role) {
+//        user_roles.remove(user_role);
+//        user_role.setRole(null);
+//    }
+
+}
+
+//For @ManyToMany associations, the REMOVE entity state transition doesn't make sense to be cascaded because it will propagate beyond the link table.
