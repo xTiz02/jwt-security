@@ -47,10 +47,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean enabled;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserRole> user_roles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserPermission> permissions = new ArrayList<>();
 
     public ArrayList<String> getAllRolesArray(){

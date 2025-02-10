@@ -29,13 +29,13 @@ public class Role {
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserRole> user_roles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GrantedPermission> permissions = new ArrayList<>();
 
     public List<GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         permissions.forEach(
-                permission -> authorities.add(permission.getPermission())
+                permission -> authorities.add(new SimpleGrantedAuthority(permission.getPermission().getAuthority()))
         );
         authorities.add(new SimpleGrantedAuthority(name));
         return authorities;
