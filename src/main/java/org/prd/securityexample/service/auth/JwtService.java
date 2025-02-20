@@ -1,12 +1,10 @@
 package org.prd.securityexample.service.auth;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.prd.securityexample.model.entity.RefreshToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +19,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class JwtService {
 
@@ -75,8 +74,21 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String jwt) {
-        return Jwts.parser().verifyWith(generateKey()).build()
-                .parseSignedClaims(jwt).getPayload();
+        try{
+            return Jwts.parser().verifyWith(generateKey()).build()
+                    .parseSignedClaims(jwt).getPayload();
+        } catch (ExpiredJwtException e) {
+            log.warn("token expired");
+        } catch (UnsupportedJwtException e) {
+            log.warn("token unsupported");
+        } catch (MalformedJwtException e) {
+            log.warn("token malformed");
+        } catch (SignatureException e) {
+            log.warn("bad signature");
+        } catch (IllegalArgumentException e) {
+            log.warn("illegal args");
+        }
+        throw new RuntimeException("Invalid token");
     }
 
     public String extractUsername(String jwt) {
