@@ -45,8 +45,8 @@ public class AuthService {
 
         User user = userService.findOneByUsername(autRequest.username()).orElseThrow(() -> new RuntimeException("User not found"));
         String jwt = jwtService.generateToken(user, generateJwtAccessExtraClaims(user));
-
-        return new AuthenticationResponse(jwt,"Not implemented");
+        String rfJwt = jwtService.generateRefreshToken(user);
+        return new AuthenticationResponse(jwt,rfJwt);
     }
 
     public boolean validateToken(String jwt) {
